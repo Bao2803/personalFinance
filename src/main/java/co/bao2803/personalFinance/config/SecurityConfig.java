@@ -34,16 +34,12 @@ import java.security.interfaces.RSAPublicKey;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
     @Value("${jwt.public.key}")
     private RSAPublicKey key;
-
     @Value("${jwt.private.key}")
     private RSAPrivateKey priv;
-
     @Value("${auth.username}")
     private String username;
-
     @Value("${auth.password}")
     private String password;
 
@@ -51,11 +47,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers(PublicEndpoint.ENDPOINTS).permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf((csrf) -> csrf.ignoringRequestMatchers("/auth/login"))
                 .httpBasic(Customizer.withDefaults())
-                .oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
+                .oauth2ResourceServer((oauth2ResourceServer) -> oauth2ResourceServer
                         .jwt(jwt -> jwt
                                 .decoder(jwtDecoder())
                         )

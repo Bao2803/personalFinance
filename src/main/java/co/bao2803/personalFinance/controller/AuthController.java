@@ -2,6 +2,7 @@ package co.bao2803.personalFinance.controller;
 
 import co.bao2803.personalFinance.dto.ResponseDto;
 import co.bao2803.personalFinance.service.JwtService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -19,6 +20,7 @@ public class AuthController {
     private final JwtService jwtService;
 
     @PostMapping("/login")
+    @SecurityRequirement(name = "basicAuth")
     public ResponseDto<String> login(
             @Autowired final Authentication authentication
     ) {
@@ -27,6 +29,7 @@ public class AuthController {
     }
 
     @GetMapping("/logout")
+    @SecurityRequirement(name = "bearerJwt")
     public ResponseDto<ResponseDto.EmptyResponse> logout(
             @Autowired final JwtAuthenticationToken token
     ) {
