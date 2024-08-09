@@ -1,5 +1,6 @@
 package co.bao2803.personalFinance.config;
 
+import co.bao2803.personalFinance.service.JwtService;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -18,10 +20,10 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -34,12 +36,17 @@ import java.security.interfaces.RSAPublicKey;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    private final RedisTemplate<String, String> redisTemplate;
+
     @Value("${jwt.public.key}")
     private RSAPublicKey key;
+
     @Value("${jwt.private.key}")
     private RSAPrivateKey priv;
+
     @Value("${auth.username}")
     private String username;
+
     @Value("${auth.password}")
     private String password;
 
@@ -82,7 +89,9 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withPublicKey(this.key).build();
+        final NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(this.key).build();
+        decoder.setJwtValidator(blackListValidator());
+        return decoder;
     }
 
     @Bean
@@ -90,5 +99,29 @@ public class SecurityConfig {
         final JWK jwk = new RSAKey.Builder(this.key).privateKey(this.priv).build();
         final JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
         return new NimbusJwtEncoder(jwks);
+    }
+
+    private OAuth2TokenValidator<Jwt> blackListValidator() {
+        return new BlackListValidator(redisTemplate);
+    }
+
+    @RequiredArgsConstructor
+    public static class BlackListValidator implements OAuth2TokenValidator<Jwt> {
+        private final RedisTemplate<String, String> redisTemplate;
+
+        @Override
+        public OAuth2TokenValidatorResult validate(final Jwt jwt) {
+            final String blackListTime = redisTemplate.opsForValue().get(JwtService.createBlackListKey(jwt));
+            if (blackListTime != null) {
+                final OAuth2Error error = new OAuth2Error(
+                        "WH_BL",
+                        "Token is invalidated at " + blackListTime,
+                        null
+                );
+                return OAuth2TokenValidatorResult.failure(error);
+            }
+
+            return OAuth2TokenValidatorResult.success();
+        }
     }
 }

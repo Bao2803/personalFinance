@@ -36,4 +36,10 @@ public class AuthController {
         jwtService.invalidateJwt(token);
         return ResponseDto.success();
     }
+
+    @GetMapping("/test")
+    @SecurityRequirement(name = "bearerJwt")
+    public String test() {
+        return "Hello, World";
+    }
 }
