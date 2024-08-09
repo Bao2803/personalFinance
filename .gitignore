@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Env ###
+*.env
+
+### JWT signing key ###
+app.key
+src/main/resources/key/app.pub

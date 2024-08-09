@@ -1,3 +1,28 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+
 spring:
   application:
     name: personal-finance
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+
+jwt:
+  duration: 60  # in minutes
+  private:
+    key: classpath:key/app.key
+  public:
+    key: classpath:key/app.pub
+
+auth:
+  username: ${USERNAME}
+  password: ${PASSWORD}
