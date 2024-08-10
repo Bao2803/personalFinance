@@ -2,8 +2,7 @@ package co.bao2803.personalFinance.model;
 
 import co.bao2803.personalFinance.annotation.AtLeastOneNotNull;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -11,7 +10,10 @@ import java.util.UUID;
 
 @Data
 @Entity
+@Builder
 @AtLeastOneNotNull
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "payees")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Payee implements Serializable {
@@ -21,7 +23,7 @@ public class Payee implements Serializable {
     @Column(name = "payee_id", nullable = false, unique = true)
     private UUID id;
 
-    @Column(name = "payee_name")
+    @Column(name = "payee_name", nullable = false)
     private String name;
 
     @Column(name = "payee_email")

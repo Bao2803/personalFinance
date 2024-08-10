@@ -1,5 +1,6 @@
 package co.bao2803.personalFinance.annotation;
 
+import co.bao2803.personalFinance.validator.CreatePayeeReqValidator;
 import co.bao2803.personalFinance.validator.PayeeValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
@@ -11,7 +12,12 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = PayeeValidator.class)
+@Constraint(
+        validatedBy = {
+                PayeeValidator.class,
+                CreatePayeeReqValidator.class
+        }
+)
 public @interface AtLeastOneNotNull {
     String message() default "At least one of name, email, or phone must be provided";
 
