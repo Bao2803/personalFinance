@@ -36,7 +36,7 @@ public class PayeeController {
         return ResponseDto.success(res);
     }
 
-    @Operation(summary = "Find all payees that matches the input email, phone, and name")
+    @Operation(summary = "Find all payees that matches the input keyword")
     @GetMapping("/search")
     public ResponseDto<List<ReadPayeeRes>> readPayee(
             @RequestParam final String keyword
