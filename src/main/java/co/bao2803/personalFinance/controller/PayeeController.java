@@ -3,7 +3,6 @@ package co.bao2803.personalFinance.controller;
 import co.bao2803.personalFinance.dto.ResponseDto;
 import co.bao2803.personalFinance.dto.payee.create.CreatePayeeReq;
 import co.bao2803.personalFinance.dto.payee.create.CreatePayeeRes;
-import co.bao2803.personalFinance.dto.payee.read.ReadPayeeReq;
 import co.bao2803.personalFinance.dto.payee.read.ReadPayeeRes;
 import co.bao2803.personalFinance.dto.payee.update.UpdatePayeeReq;
 import co.bao2803.personalFinance.dto.payee.update.UpdatePayeeRes;
@@ -40,9 +39,9 @@ public class PayeeController {
     @Operation(summary = "Find all payees that matches the input email, phone, and name")
     @GetMapping("/search")
     public ResponseDto<List<ReadPayeeRes>> readPayee(
-            @ParameterObject final ReadPayeeReq readPayeeReq
+            @RequestParam final String keyword
     ) {
-        final List<ReadPayeeRes> res = payeeService.getAllPayeeWithEmailPhoneAndName(readPayeeReq);
+        final List<ReadPayeeRes> res = payeeService.searchAllByKeyword(keyword);
         return ResponseDto.success(res);
     }
 

@@ -2,7 +2,6 @@ package co.bao2803.personalFinance.service;
 
 import co.bao2803.personalFinance.dto.payee.create.CreatePayeeReq;
 import co.bao2803.personalFinance.dto.payee.create.CreatePayeeRes;
-import co.bao2803.personalFinance.dto.payee.read.ReadPayeeReq;
 import co.bao2803.personalFinance.dto.payee.read.ReadPayeeRes;
 import co.bao2803.personalFinance.dto.payee.update.UpdatePayeeReq;
 import co.bao2803.personalFinance.dto.payee.update.UpdatePayeeRes;
@@ -31,12 +30,8 @@ public class PayeeService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReadPayeeRes> getAllPayeeWithEmailPhoneAndName(@Nonnull final ReadPayeeReq readPayeeReq) {
-        return payeeRepository.findAllByEmailLikeIgnoreCaseAndPhoneLikeIgnoreCaseAndNameLikeIgnoreCase(
-                        readPayeeReq.getEmail(),
-                        readPayeeReq.getPhone(),
-                        readPayeeReq.getName()
-                )
+    public List<ReadPayeeRes> searchAllByKeyword(@Nonnull final String keyword) {
+        return payeeRepository.searchAllByKeyword(keyword)
                 .map(payeeMapper::payeeToReadPayee)
                 .toList();
     }
@@ -55,7 +50,7 @@ public class PayeeService {
         Payee newPayee = payeeMapper.createPayeeReqToPayee(createPayeeReq);
         newPayee = payeeRepository.save(newPayee);
 
-        return new CreatePayeeRes(newPayee.getId(), newPayee.getEmail(), newPayee.getPhone(), newPayee.getPhone());
+        return new CreatePayeeRes(newPayee.getId(), newPayee.getEmail(), newPayee.getPhone(), newPayee.getName());
     }
 
     public UpdatePayeeRes updatePayee(@Nonnull final UpdatePayeeReq updatePayeeReq) {
