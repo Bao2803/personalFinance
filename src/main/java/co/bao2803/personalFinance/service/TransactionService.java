@@ -2,6 +2,7 @@ package co.bao2803.personalFinance.service;
 
 import co.bao2803.personalFinance.dto.transaction.create.CreateTransactionReq;
 import co.bao2803.personalFinance.dto.transaction.create.CreateTransactionRes;
+import co.bao2803.personalFinance.dto.transaction.read.ReadTransactionRes;
 import co.bao2803.personalFinance.mapper.TransactionMapper;
 import co.bao2803.personalFinance.model.Payee;
 import co.bao2803.personalFinance.model.Transaction;
@@ -9,7 +10,10 @@ import co.bao2803.personalFinance.model.TransactionPayee;
 import co.bao2803.personalFinance.repository.PayeeRepository;
 import co.bao2803.personalFinance.repository.TransactionPayeeRepository;
 import co.bao2803.personalFinance.repository.TransactionRepository;
+import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +31,7 @@ public class TransactionService {
     private final TransactionPayeeRepository transactionPayeeRepository;
 
     @Transactional
-    public CreateTransactionRes createTransaction(final CreateTransactionReq createPayeeReq) {
+    public CreateTransactionRes createTransaction(@Nonnull final CreateTransactionReq createPayeeReq) {
         final List<Payee> payees = payeeRepository.findAllById(createPayeeReq.getPayees());
         if (payees.size() != createPayeeReq.getPayees().size()) {
             final Set<UUID> badIds = new HashSet<>(createPayeeReq.getPayees());
@@ -59,5 +63,18 @@ public class TransactionService {
         // TODO: add 3rd APIs to send money?
 
         return transactionMapper.transactionToCreateTransactionRes(savedTransaction, transactionPayees);
+    }
+
+    @Transactional(readOnly = true)
+    public ReadTransactionRes readTransaction(@Nonnull final UUID transactionId) {
+        final Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow();
+        return transactionMapper.transactionToReadTransaction(transaction);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ReadTransactionRes> listTransaction(@Nonnull final Pageable pageable) {
+        return transactionRepository.findAll(pageable)
+                .map(transactionMapper::transactionToReadTransaction);
     }
 }
