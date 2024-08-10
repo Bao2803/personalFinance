@@ -22,7 +22,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/payee")
+@RequestMapping("/payees")
 @SecurityRequirement(name = "bearerJwt")
 public class PayeeController {
     private final PayeeService payeeService;

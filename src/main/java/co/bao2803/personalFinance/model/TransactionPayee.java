@@ -1,14 +1,16 @@
 package co.bao2803.personalFinance.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.UUID;
 
 @Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "transaction_payee")
 @IdClass(TransactionPayeeKey.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -31,4 +33,11 @@ public class TransactionPayee implements Serializable {
 
     @Column(name = "amount", nullable = false)
     private Double amount = 0D;
+
+    @PrePersist
+    public void prePersist() {
+        if (transaction != null) {
+            this.transactionId = transaction.getId();
+        }
+    }
 }

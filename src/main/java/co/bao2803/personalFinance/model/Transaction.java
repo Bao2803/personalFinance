@@ -1,8 +1,7 @@
 package co.bao2803.personalFinance.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -13,6 +12,9 @@ import java.util.UUID;
 
 @Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "transactions")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Transaction implements Serializable {
