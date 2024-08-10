@@ -40,6 +40,11 @@ jwt:
   public:
     key: classpath:key/app.pub
 
+springdoc:
+  swagger-ui:
+    operationsSorter: method
+    try-it-out-enabled: true
+
 auth:
   username: ${USERNAME}
   password: ${PASSWORD}

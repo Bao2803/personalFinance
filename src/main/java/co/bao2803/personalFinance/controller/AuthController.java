@@ -2,6 +2,7 @@ package co.bao2803.personalFinance.controller;
 
 import co.bao2803.personalFinance.dto.ResponseDto;
 import co.bao2803.personalFinance.service.JwtService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ public class AuthController {
 
     private final JwtService jwtService;
 
+    @Operation(summary = "Use basic authentication to obtain JWT token")
     @PostMapping("/login")
     @SecurityRequirement(name = "basicAuth")
     public ResponseDto<String> login(
@@ -28,6 +30,7 @@ public class AuthController {
         return ResponseDto.success(token);
     }
 
+    @Operation(summary = "Logout. Invalidate JWT token")
     @GetMapping("/logout")
     @SecurityRequirement(name = "bearerJwt")
     public ResponseDto<ResponseDto.EmptyResponse> logout(
@@ -37,6 +40,7 @@ public class AuthController {
         return ResponseDto.success();
     }
 
+    @Operation(summary = "Testing JWT token")
     @GetMapping("/test")
     @SecurityRequirement(name = "bearerJwt")
     public String test() {
