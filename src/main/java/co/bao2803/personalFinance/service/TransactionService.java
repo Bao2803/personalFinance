@@ -3,6 +3,8 @@ package co.bao2803.personalFinance.service;
 import co.bao2803.personalFinance.dto.transaction.create.CreateTransactionReq;
 import co.bao2803.personalFinance.dto.transaction.create.CreateTransactionRes;
 import co.bao2803.personalFinance.dto.transaction.read.ReadTransactionRes;
+import co.bao2803.personalFinance.exception.white.PayeeNotFound;
+import co.bao2803.personalFinance.exception.white.TransactionNotFound;
 import co.bao2803.personalFinance.mapper.TransactionMapper;
 import co.bao2803.personalFinance.model.Payee;
 import co.bao2803.personalFinance.model.Transaction;
@@ -17,9 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -34,11 +35,11 @@ public class TransactionService {
     public CreateTransactionRes createTransaction(@Nonnull final CreateTransactionReq createPayeeReq) {
         final List<Payee> payees = payeeRepository.findAllById(createPayeeReq.getPayees());
         if (payees.size() != createPayeeReq.getPayees().size()) {
-            final Set<UUID> badIds = new HashSet<>(createPayeeReq.getPayees());
+            final List<UUID> badIds = new ArrayList<>(createPayeeReq.getPayees());
             for (Payee payee : payees) {
                 badIds.remove(payee.getId());
             }
-            throw new RuntimeException("Non exist id: " + badIds);
+            throw new PayeeNotFound(badIds);
         }
 
         // Create a transaction
@@ -68,7 +69,7 @@ public class TransactionService {
     @Transactional(readOnly = true)
     public ReadTransactionRes readTransaction(@Nonnull final UUID transactionId) {
         final Transaction transaction = transactionRepository.findById(transactionId)
-                .orElseThrow();
+                .orElseThrow(() -> new TransactionNotFound(transactionId));
         return transactionMapper.transactionToReadTransaction(transaction);
     }
 

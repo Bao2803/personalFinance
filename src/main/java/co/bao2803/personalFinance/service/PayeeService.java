@@ -5,6 +5,7 @@ import co.bao2803.personalFinance.dto.payee.create.CreatePayeeRes;
 import co.bao2803.personalFinance.dto.payee.read.ReadPayeeRes;
 import co.bao2803.personalFinance.dto.payee.update.UpdatePayeeReq;
 import co.bao2803.personalFinance.dto.payee.update.UpdatePayeeRes;
+import co.bao2803.personalFinance.exception.white.PayeeNotFound;
 import co.bao2803.personalFinance.mapper.PayeeMapper;
 import co.bao2803.personalFinance.model.Payee;
 import co.bao2803.personalFinance.repository.PayeeRepository;
@@ -26,7 +27,7 @@ public class PayeeService {
 
     private Payee getPayeeFromDb(@Nonnull final UUID payeeId) {
         return payeeRepository.findById(payeeId)
-                .orElseThrow();
+                .orElseThrow(() -> new PayeeNotFound(payeeId));
     }
 
     @Transactional(readOnly = true)
